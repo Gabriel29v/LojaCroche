@@ -23,7 +23,7 @@ public class App {
     static class StaticFileHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
-            String rootPath = "public";
+            String rootPath = ".";
             String path = t.getRequestURI().getPath();
             
             if (path.equals("/")) {
