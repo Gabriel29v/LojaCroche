@@ -5,13 +5,13 @@
 // 3. Substituir os valores abaixo pelos das configurações do SEU projeto.
 
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "seu-projeto.firebaseapp.com",
-    databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com",
-    projectId: "seu-projeto",
-    storageBucket: "seu-projeto.appspot.com",
-    messagingSenderId: "seu-id",
-    appId: "seu-app-id"
+    apiKey: "AIzaSyAs6br53bdqnod_Z5qKLzz-invVS9KfAF4",
+    authDomain: "lojacroche-b1b83.firebaseapp.com",
+    databaseURL: "https://lojacroche-b1b83-default-rtdb.firebaseio.com",
+    projectId: "lojacroche-b1b83",
+    storageBucket: "lojacroche-b1b83.firebasestorage.app",
+    messagingSenderId: "953784538103",
+    appId: "1:953784538103:web:b67aa91f1a4565049e94f2"
 };
 
 // Inicialização (será feita nos arquivos individuais)
