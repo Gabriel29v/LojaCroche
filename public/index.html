@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UseLicecroche | Feito com Amor</title>
+    <meta name="description" content="UseLicecroche - Loja de roupas e amigurumis de crochê feitos com amor.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="modal-styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+        <div class="logo">
+            <span class="use">USE</span><br>
+            <span class="lice">lice crochê</span>
+            <span class="subtitle">FEITO COM AMOR</span>
+        </div>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span id="cart-count">0</span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Peças únicas, <br>feitas à mão para você.</h1>
+        <p>Explore nossa nova coleção de crochê</p>
+        <button class="btn-primary" onclick="scrollToProducts()">Ver Produtos</button>
+    </section>
+
+    <!-- News Marquee -->
+    <!-- News Marquee -->
+    <div class="news-marquee-container">
+        <div class="news-marquee" id="news-marquee">
+            <!-- News items will be injected here -->
+        </div>
+    </div>
+    
+    <!-- Latest Releases Section (Dark Style) -->
+    <section class="latest-releases">
+        <h2 class="latest-title">ÚLTIMOS LANÇAMENTOS</h2>
+        
+        <div class="slider-wrapper">
+            <button class="slider-arrow prev" onclick="moveSlider(-1)">&#10094;</button>
+            
+            <div class="latest-slider" id="latest-slider">
+                <!-- Latest products will be injected here via JS -->
+            </div>
+            
+            <button class="slider-arrow next" onclick="moveSlider(1)">&#10095;</button>
+        </div>
+    </section>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar(event)">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>Categorias</h3>
+                <button class="close-sidebar" onclick="toggleSidebar()">&times;</button>
+            </div>
+            <ul class="sidebar-menu">
+                <li onclick="filterByCategory('all')" class="active">Todos os Produtos</li>
+                <li onclick="filterByCategory('Bolsas')">Bolsas</li>
+                <li onclick="filterByCategory('Vestidos')">Vestidos</li>
+                <li onclick="filterByCategory('Tops')">Tops</li>
+                <li onclick="filterByCategory('Biquíni')">Biquíni</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <main id="products-section" class="container">
+        <h2 class="section-title">Nossas Criações</h2>
+
+        <div class="products-grid">
+            <!-- Dynamic products will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Shopping Cart Overlay -->
+    <div class="cart-overlay" id="cart-overlay" onclick="closeCart(event)">
+        <div class="cart-sidebar" id="cart-sidebar">
+            <div class="cart-header">
+                <h2>Seu Carrinho</h2>
+                <button class="close-btn" onclick="toggleCart()">&times;</button>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <!-- Items will be injected here via JS -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total-price">R$ 0,00</span>
+                </div>
+                <!-- WhatsApp number is set internally -->
+                <button class="btn-checkout" onclick="checkoutWhatsApp()"><i class="fa-brands fa-whatsapp"></i>
+                    Finalizar Pedido no WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="product-modal" onclick="closeProductModal(event)">
+        <div class="product-modal-content">
+            <span class="close-modal-btn" onclick="closeProductModal(event, true)">&times;</span>
+            <div class="modal-body">
+                <div class="modal-gallery">
+                    <img id="modal-main-image" src="" alt="Produto">
+                    <div id="modal-thumbnails" class="modal-thumbnails">
+                        <!-- Thumbnails injected here -->
+                    </div>
+                </div>
+                
+                <div class="modal-info">
+                    <h2 id="modal-title">Nome do Produto</h2>
+                    <p class="modal-price" id="modal-price">R$ 0,00</p>
+                    
+                    <div class="modal-description-container">
+                        <h3>Descrição</h3>
+                        <p id="modal-description">Descrição do produto...</p>
+                    </div>
+
+                    <div class="modal-details-container">
+                        <h3>Detalhes</h3>
+                        <p id="modal-details">Detalhes técnicos...</p>
+                    </div>
+
+                    <button class="btn-primary" id="modal-add-btn">
+                        <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/558187230143" class="whatsapp-float" target="_blank" title="Fale conosco no WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 UseLicecroche. Todos os direitos reservados.</p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
