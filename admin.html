@@ -163,12 +163,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
         import firebaseConfig from "./firebase-config.js";
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const storage = getStorage(app);
 
         let productsList = [];
 
@@ -230,8 +228,8 @@
                 img.src = base64Str;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const MAX_HEIGHT = 800;
+                    const MAX_WIDTH = 500; // Tamanho ideal para catálogo rápido
+                    const MAX_HEIGHT = 500;
                     let width = img.width;
                     let height = img.height;
 
@@ -251,7 +249,9 @@
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Reduzido para 60% para velocidade máxima
+                    
+                    // Compressão Turbo (40% de qualidade) para reduzir o peso ao mínimo
+                    resolve(canvas.toDataURL('image/jpeg', 0.4));
                 };
             });
         }
@@ -306,6 +306,7 @@
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
+            submitBtn.innerText = "Salvando no Banco...";
 
             const name = document.getElementById('p-name').value;
             const price = parseFloat(document.getElementById('p-price').value);
@@ -317,37 +318,25 @@
             if (pendingImages.length === 0 && !document.getElementById('p-image').value.trim()) {
                 alert("Adicione pelo menos uma imagem.");
                 submitBtn.disabled = false;
+                submitBtn.innerText = "Adicionar Produto";
                 return;
             }
 
             try {
-                let imagesUrls = [];
+                let finalImages = [];
                 
-                // 1. Upload para o Firebase Storage
                 if (pendingImages.length > 0) {
-                    for (let i = 0; i < pendingImages.length; i++) {
-                        submitBtn.innerText = `Subindo foto ${i+1} de ${pendingImages.length}...`;
-                        const fileName = `products/${Date.now()}_${i}.jpg`;
-                        const fileRef = storageRef(storage, fileName);
-                        
-                        // Faz o upload da string base64
-                        await uploadString(fileRef, pendingImages[i], 'data_url');
-                        const url = await getDownloadURL(fileRef);
-                        imagesUrls.push(url);
-                    }
+                    finalImages = [...pendingImages];
                 } else {
-                    // Fallback para URLs manuais
                     let urlText = document.getElementById('p-image').value.trim();
-                    imagesUrls = urlText.split(',').map(u => u.trim()).filter(u => u.length > 0);
+                    finalImages = urlText.split(',').map(u => u.trim()).filter(u => u.length > 0);
                 }
 
-                // 2. Salva no Realtime Database com as URLs finais
-                submitBtn.innerText = "Finalizando...";
                 const productsRef = ref(db, 'products');
                 await push(productsRef, { 
                     name, 
                     price, 
-                    images: imagesUrls, 
+                    images: finalImages, 
                     description, 
                     details, 
                     category, 
@@ -360,7 +349,7 @@
                 alert("Produto adicionado com sucesso!");
             } catch (err) {
                 console.error(err);
-                alert("ERRO: Verifique se você ativou o 'Storage' no Console do Firebase.");
+                alert("Erro ao salvar. Verifique se as Regras do Realtime Database estão como 'true'.");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Adicionar Produto";
