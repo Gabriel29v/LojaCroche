@@ -65,7 +65,7 @@ h3 {
 }
 
 .logo-img {
-    height: 80px;
+    height: 130px; /* Aumentado de 80px para 130px para dar mais destaque */
     width: auto;
     object-fit: contain;
     transition: var(--transition);
