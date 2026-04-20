@@ -71,10 +71,12 @@
 #modal-main-image {
     width: 100%;
     height: 600px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     background: #fdfaf7;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .modal-thumbnails {

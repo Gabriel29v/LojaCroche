@@ -1,19 +1,30 @@
-// Importando Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-import firebaseConfig from "./firebase-config.js";
+// Importando Supabase
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import supabaseConfig from "./supabase-config.js";
 
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// Inicializar Supabase
+const supabase = createClient(supabaseConfig.url, supabaseConfig.key);
 
 let cart = [];
 let loadedProducts = [];
 
 // Funções de UI
 document.addEventListener("DOMContentLoaded", () => {
-    loadProductsFromFirebase();
+    loadProductsFromSupabase();
+    initSearch();
 });
+
+function initSearch() {
+    const searchBtn = document.querySelector('.search-icon');
+    if(searchBtn) {
+        searchBtn.onclick = () => {
+           const term = prompt("O que você está procurando?");
+           if(term) {
+               alert(`Buscando por: ${term}\n(Funcionalidade de busca sendo implementada...)`);
+           }
+        };
+    }
+}
 
 const defaultProducts = [
     { name: 'Top de Crochê Sereia', price: 89.90, images: ['images/top.png'], category: 'Tops', isNews: true },
@@ -21,28 +32,27 @@ const defaultProducts = [
     { name: 'Bolsa de Crochê Praia', price: 150.00, images: ['https://via.placeholder.com/400x400/FCEFE0/003399?text=Bolsa+Croch%C3%AA'], category: 'Bolsas', isNews: true }
 ];
 
-function loadProductsFromFirebase() {
-    const productsRef = ref(db, 'products');
+async function loadProductsFromSupabase() {
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
     
-    onValue(productsRef, (snapshot) => {
-        const data = snapshot.val();
-        let productsList = [];
-        
-        if (data) {
-            productsList = Object.keys(data).map(key => ({
-                id: key,
-                ...data[key]
-            }));
-        } else {
-            productsList = defaultProducts;
-        }
+    if (error) {
+        console.error("Erro ao carregar produtos:", error);
+        loadedProducts = defaultProducts;
+    } else {
+        // Mapeamos os campos se necessário (ex: is_news do DB para isNews do JS)
+        loadedProducts = data ? data.map(p => ({
+            ...p,
+            isNews: p.is_news // Compatibilidade com o resto do script
+        })) : defaultProducts;
+    }
 
-        loadedProducts = productsList;
-        window.loadedProducts = productsList; 
-        renderProducts();
-        renderLatestReleases(); // Nova função
-        loadNewsMarquee();
-    });
+    window.loadedProducts = loadedProducts; 
+    renderProducts();
+    renderLatestReleases();
+    loadNewsMarquee();
 }
 
 function renderLatestReleases() {
@@ -67,7 +77,7 @@ function renderLatestReleases() {
         card.className = 'news-card';
         card.innerHTML = `
             <div class="news-card-image" onclick="openProductModal(${actualIndex})">
-                <img src="${p.images[0]}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400'">
+                <img src="${p.images[0]}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400'" decoding="async">
             </div>
             <div class="news-card-info">
                 <h4 onclick="openProductModal(${actualIndex})">${p.name}</h4>
@@ -116,7 +126,7 @@ function renderProducts(filter = 'all') {
         grid.innerHTML += `
             <div class="product-card">
                 <div class="product-image" onclick="openProductModal(${actualIndex})" style="cursor: pointer;">
-                    <img src="${firstImg}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x400/FCEFE0/003399?text=Imagem'">
+                    <img src="${firstImg}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x400/FCEFE0/003399?text=Imagem'" decoding="async">
                     ${p.isNews ? '<span class="news-badge" style="position:absolute; top:20px; left:20px; background:var(--navy-blue); color:white; padding:5px 15px; border-radius:30px; font-weight:bold; font-size:0.8rem; box-shadow:0 5px 15px rgba(0,0,0,0.2);">NOVO</span>' : ''}
                 </div>
                 <div class="product-info">
@@ -137,9 +147,9 @@ function loadNewsMarquee() {
 
     if (newsItems.length === 0) {
         marquee.innerHTML = `
-            <div class="marquee-item"><span>Novidades</span> UseLicecroche: Peças únicas feitas com amor</div>
+            <div class="marquee-item"><span>Novidades</span> Use Lice Crochê: Peças únicas feitas com amor</div>
             <div class="marquee-item"><span>Novidades</span> Confira nossa nova coleção de crochê</div>
-            <div class="marquee-item"><span>Novidades</span> UseLicecroche: Artesanato com alma</div>
+            <div class="marquee-item"><span>Novidades</span> Use Lice Crochê: Artesanato com alma</div>
         `;
     } else {
         let content = '';
@@ -147,7 +157,7 @@ function loadNewsMarquee() {
         repeatedItems.forEach(item => {
             content += `
                 <div class="marquee-item" onclick="openProductModal(${loadedProducts.findIndex(p => p.name === item.name)})" style="cursor: pointer;">
-                    <img src="${item.images[0]}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);">
+                    <img src="${item.images[0]}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);" decoding="async">
                     <span>Novidade</span> ${item.name} - R$ ${item.price.toFixed(2).replace('.', ',')}
                 </div>
             `;
@@ -254,10 +264,15 @@ window.addToCart = (name, price) => {
     updateCartUI();
     
     const countElement = document.getElementById('cart-count');
-    countElement.style.transform = 'scale(1.5)';
+    countElement.classList.add('bump');
     setTimeout(() => {
-        countElement.style.transform = 'scale(1)';
-    }, 200);
+        countElement.classList.remove('bump');
+    }, 400);
+
+    // Feedback visual opcional
+    if(!document.getElementById('cart-overlay').classList.contains('active')) {
+        // toggleCart(); // Comentado para não abrir o carrinho toda vez, mas dar o feedback do contador é bom
+    }
 };
 
 window.removeFromCart = (index) => {
@@ -311,7 +326,7 @@ window.checkoutWhatsApp = () => {
     }
     
     const waNumber = "558187230143";
-    let message = "Olá UseLicecroche! 🥰\nGostaria de fazer o seguinte pedido:\n\n";
+    let message = "Olá Use Lice Crochê! 🥰\nGostaria de fazer o seguinte pedido:\n\n";
     
     let total = 0;
     cart.forEach(item => {

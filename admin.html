@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - UseLicecroche</title>
+    <title>Painel Admin - Use Lice Crochê</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -143,9 +143,6 @@
                 <span style="align-self: center; font-weight: bold; color: #888;">OU</span>
                 <input type="text" id="p-image" placeholder="Cole URLs separadas por vírgula" style="flex: 1;">
             </div>
-            <!-- Campo escondido que guarda o código Base64 da imagem se tiver upload -->
-            <input type="hidden" id="p-image-base64">
-
             <div id="p-image-preview" class="preview-container"></div>
 
             <button type="submit" style="margin-top: 15px;">Adicionar Produto</button>
@@ -161,12 +158,11 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-        import firebaseConfig from "./firebase-config.js";
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        import supabaseConfig from "./supabase-config.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        const supabase = createClient(supabaseConfig.url, supabaseConfig.key);
+
 
         let productsList = [];
 
@@ -175,20 +171,21 @@
             document.getElementById('admin-form').addEventListener('submit', addProduct);
         });
 
-        function loadAdminProducts() {
-            const productsRef = ref(db, 'products');
-            onValue(productsRef, (snapshot) => {
-                const data = snapshot.val();
-                productsList = [];
-                if (data) {
-                    productsList = Object.keys(data).map(key => ({
-                        id: key,
-                        ...data[key]
-                    }));
-                }
-                
-                renderAdminList();
-            });
+        async function loadAdminProducts() {
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Erro:", error);
+            } else {
+                productsList = data ? data.map(p => ({
+                    ...p,
+                    isNews: p.is_news // Mapeamento para compatibility
+                })) : [];
+            }
+            renderAdminList();
         }
 
         function renderAdminList() {
@@ -220,65 +217,12 @@
             });
         }
 
-        let pendingImages = [];
+        let pendingFiles = [];
 
-        async function compressImage(base64Str) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.src = base64Str;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 500; // Tamanho ideal para catálogo rápido
-                    const MAX_HEIGHT = 500;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Compressão Turbo (40% de qualidade) para reduzir o peso ao mínimo
-                    resolve(canvas.toDataURL('image/jpeg', 0.4));
-                };
-            });
-        }
-
-        window.handleImageUpload = async (event) => {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
-            
-            const submitBtn = document.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerText;
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Processando fotos...";
-
-            for (let file of Array.from(files)) {
-                const reader = new FileReader();
-                const base64 = await new Promise(resolve => {
-                    reader.onload = e => resolve(e.target.result);
-                    reader.readAsDataURL(file);
-                });
-                
-                const compressed = await compressImage(base64);
-                pendingImages.push(compressed);
-            }
-            
+        window.handleImageUpload = (event) => {
+            const files = Array.from(event.target.files);
+            pendingFiles = [...pendingFiles, ...files];
             renderPendingImages();
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalBtnText;
             event.target.value = '';
         };
 
@@ -286,19 +230,20 @@
             const container = document.getElementById('p-image-preview');
             container.innerHTML = '';
             
-            pendingImages.forEach((img, index) => {
+            pendingFiles.forEach((file, index) => {
+                const url = URL.createObjectURL(file);
                 const div = document.createElement('div');
                 div.className = 'preview-item';
                 div.innerHTML = `
-                    <img src="${img}">
-                    <button type="button" class="preview-remove" onclick="removePendingImage(${index})">&times;</button>
+                    <img src="${url}">
+                    <button type="button" class="preview-remove" onclick="removePendingFile(${index})">&times;</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        window.removePendingImage = (index) => {
-            pendingImages.splice(index, 1);
+        window.removePendingFile = (index) => {
+            pendingFiles.splice(index, 1);
             renderPendingImages();
         };
 
@@ -306,16 +251,16 @@
             e.preventDefault();
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerText = "Salvando no Banco...";
+            submitBtn.innerText = "Enviando...";
 
             const name = document.getElementById('p-name').value;
             const price = parseFloat(document.getElementById('p-price').value);
             const description = document.getElementById('p-desc').value;
             const details = document.getElementById('p-details').value;
             const category = document.getElementById('p-category').value;
-            const isNews = document.getElementById('p-is-news').checked;
+            const is_news = document.getElementById('p-is-news').checked;
 
-            if (pendingImages.length === 0 && !document.getElementById('p-image').value.trim()) {
+            if (pendingFiles.length === 0 && !document.getElementById('p-image').value.trim()) {
                 alert("Adicione pelo menos uma imagem.");
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Adicionar Produto";
@@ -325,31 +270,52 @@
             try {
                 let finalImages = [];
                 
-                if (pendingImages.length > 0) {
-                    finalImages = [...pendingImages];
+                // Upload para Supabase Storage
+                if (pendingFiles.length > 0) {
+                    for (const file of pendingFiles) {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
+                        const filePath = `products/${fileName}`;
+
+                        const { error: uploadError } = await supabase.storage
+                            .from('images')
+                            .upload(filePath, file);
+
+                        if (uploadError) throw uploadError;
+
+                        const { data: urlData } = supabase.storage
+                            .from('images')
+                            .getPublicUrl(filePath);
+
+                        finalImages.push(urlData.publicUrl);
+                    }
                 } else {
                     let urlText = document.getElementById('p-image').value.trim();
                     finalImages = urlText.split(',').map(u => u.trim()).filter(u => u.length > 0);
                 }
 
-                const productsRef = ref(db, 'products');
-                await push(productsRef, { 
-                    name, 
-                    price, 
-                    images: finalImages, 
-                    description, 
-                    details, 
-                    category, 
-                    isNews 
-                });
+                const { error: insertError } = await supabase
+                    .from('products')
+                    .insert([{ 
+                        name, 
+                        price, 
+                        images: finalImages, 
+                        description, 
+                        details, 
+                        category, 
+                        is_news 
+                    }]);
+
+                if (insertError) throw insertError;
                 
                 document.getElementById('admin-form').reset();
-                pendingImages = [];
+                pendingFiles = [];
                 renderPendingImages();
-                alert("Produto adicionado com sucesso!");
+                loadAdminProducts(); // Recarregar lista
+                alert("Produto cadastrado com sucesso!");
             } catch (err) {
                 console.error(err);
-                alert("Erro ao salvar. Verifique se as Regras do Realtime Database estão como 'true'.");
+                alert("Erro ao salvar. Verifique se o bucket 'images' é público e se a tabela 'products' existe.");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Adicionar Produto";
@@ -359,9 +325,15 @@
         window.removeProduct = async (id) => {
             if (confirm("Remover este produto permanentemente?")) {
                 try {
-                    const productRef = ref(db, `products/${id}`);
-                    await remove(productRef);
+                    const { error } = await supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+                    loadAdminProducts(); // Recarregar lista
                 } catch (err) {
+                    console.error(err);
                     alert("Erro ao remover.");
                 }
             }

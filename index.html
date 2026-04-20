@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UseLicecroche | Feito com Amor</title>
-    <meta name="description" content="UseLicecroche - Loja de roupas e amigurumis de crochê feitos com amor.">
+    <title>Use Lice Crochê | Feito com Amor</title>
+    <meta name="description" content="Use Lice Crochê - Loja de roupas e amigurumis de crochê feitos com amor.">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="modal-styles.css">
     <link
@@ -143,6 +143,40 @@
         </div>
     </div>
 
+    <!-- Product Detail Modal -->
+    <div id="product-modal" class="product-modal" onclick="closeProductModal(event)">
+        <div class="product-modal-content">
+            <span class="close-modal-btn" onclick="closeProductModal(event, true)">&times;</span>
+            <div class="modal-body">
+                <div class="modal-gallery">
+                    <img id="modal-main-image" src="" alt="Produto">
+                    <div id="modal-thumbnails" class="modal-thumbnails">
+                        <!-- Thumbnails injected here -->
+                    </div>
+                </div>
+                
+                <div class="modal-info">
+                    <h2 id="modal-title">Nome do Produto</h2>
+                    <p class="modal-price" id="modal-price">R$ 0,00</p>
+                    
+                    <div class="modal-description-container">
+                        <h3>Descrição</h3>
+                        <p id="modal-description">Descrição do produto...</p>
+                    </div>
+
+                    <div class="modal-details-container">
+                        <h3>Detalhes</h3>
+                        <p id="modal-details">Detalhes técnicos...</p>
+                    </div>
+
+                    <button class="btn-primary" id="modal-add-btn">
+                        <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/558187230143" class="whatsapp-float" target="_blank" title="Fale conosco no WhatsApp">
         <i class="fa-brands fa-whatsapp"></i>
@@ -150,7 +184,49 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 UseLicecroche. Todos os direitos reservados.</p>
+        <div class="container" style="padding: 0;">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Sobre Nós</h4>
+                    <p style="color: var(--text-muted); font-size: 0.85rem;">Transformamos fios em arte. Cada peça da Use Lice Crochê é tecida com amor e dedicação para realçar sua beleza.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Categorias</h4>
+                    <ul>
+                        <li><a href="#" onclick="filterByCategory('Bolsas')">Bolsas</a></li>
+                        <li><a href="#" onclick="filterByCategory('Vestidos')">Vestidos</a></li>
+                        <li><a href="#" onclick="filterByCategory('Tops')">Tops</a></li>
+                        <li><a href="#" onclick="filterByCategory('Amigurumis')">Amigurumis</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Suporte</h4>
+                    <ul>
+                        <li><a href="#">Trocas e Devoluções</a></li>
+                        <li><a href="#">Prazo de Produção</a></li>
+                        <li><a href="#">Cuidados com a Peça</a></li>
+                        <li><a href="#">Fale Conosco</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Siga-nos</h4>
+                    <div style="display: flex; gap: 15px; font-size: 1.2rem;">
+                        <a href="#" style="color: var(--text-muted);"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" style="color: var(--text-muted);"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="#" style="color: var(--text-muted);"><i class="fa-brands fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trust-badges">
+                <i class="fa-brands fa-cc-visa"></i>
+                <i class="fa-brands fa-cc-mastercard"></i>
+                <i class="fa-solid fa-pix"></i>
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+
+            <p style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 2rem;">&copy; 2026 Use Lice Crochê. Todos os direitos reservados. Feito com amor por Gabriella.</p>
+        </div>
     </footer>
 
     <script type="module" src="script.js"></script>
