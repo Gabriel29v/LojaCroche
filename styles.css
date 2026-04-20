@@ -37,13 +37,13 @@ h3 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.8rem 5%;
-    background: rgba(253, 244, 227, 0.9);
-    backdrop-filter: blur(15px);
+    padding: 0.5rem 5%;
+    background: #FBF0DC; /* Mesma cor do fundo da logo */
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(0, 51, 153, 0.1);
+    border-bottom: 1px solid rgba(0, 51, 153, 0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .menu-toggle {
@@ -65,9 +65,10 @@ h3 {
 }
 
 .logo-img {
-    height: 130px; /* Aumentado de 80px para 130px para dar mais destaque */
+    height: 170px; /* Aumentado para melhor nitidez */
     width: auto;
     object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
     transition: var(--transition);
 }
 
