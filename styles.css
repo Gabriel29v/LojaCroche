@@ -59,31 +59,20 @@ h3 {
 
 .logo {
     text-align: center;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.use {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--navy-blue);
-    letter-spacing: 2px;
+.logo-img {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    transition: var(--transition);
 }
 
-.lice {
-    font-size: 1.5rem;
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    color: var(--text-dark);
-}
-
-.subtitle {
-    display: block;
-    font-size: 0.7rem;
-    letter-spacing: 5px;
-    margin-top: 5px;
-    padding-top: 5px;
-    border-top: 1px solid var(--text-dark);
-    font-weight: 600;
+.logo-img:hover {
+    transform: scale(1.05);
 }
 
 /* Cart Icon */
