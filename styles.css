@@ -44,6 +44,12 @@ h3 {
     z-index: 1000;
     border-bottom: 1px solid rgba(0, 51, 153, 0.08);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: padding 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar.scrolled {
+    padding: 0.2rem 5%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }
 
 .menu-toggle {
@@ -65,11 +71,15 @@ h3 {
 }
 
 .logo-img {
-    height: 170px; /* Aumentado para melhor nitidez */
+    height: 120px; /* Aumentado para melhor nitidez */
     width: auto;
     object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
     transition: var(--transition);
+}
+
+.navbar.scrolled .logo-img {
+    height: 70px;
 }
 
 .logo-img:hover {
