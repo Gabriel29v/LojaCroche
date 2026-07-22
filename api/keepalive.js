@@ -6,7 +6,7 @@ const key = process.env.SUPABASE_ANON_KEY || "sb_publishable_S8nUhhYo0BkQQUZjhek
 
 const supabase = createClient(url, key);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
     // 1. Query the database
     const { data: dbData, error: dbError } = await supabase
